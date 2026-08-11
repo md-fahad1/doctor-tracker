@@ -1,8 +1,7 @@
 const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
+const cloudinary = require("../config/cloudinary");
 
-// @desc    Register a new admin user
-// @route   POST /api/auth/register
 const registerUser = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
@@ -29,8 +28,6 @@ const registerUser = async (req, res, next) => {
   }
 };
 
-// @desc    Login and receive a JWT
-// @route   POST /api/auth/login
 const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -55,8 +52,6 @@ const loginUser = async (req, res, next) => {
   }
 };
 
-// @desc    Get logged-in user's profile
-// @route   GET /api/auth/me
 const getMe = async (req, res, next) => {
   try {
     res.json(req.user);
@@ -65,4 +60,40 @@ const getMe = async (req, res, next) => {
   }
 };
 
-module.exports = { registerUser, loginUser, getMe };
+const uploadAvatar = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No image file was uploaded" });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Remove the old avatar from Cloudinary so we don't accumulate orphaned images
+    if (user.avatar?.publicId) {
+      await cloudinary.uploader.destroy(user.avatar.publicId).catch(() => {
+      
+      });
+    }
+
+    user.avatar = {
+      url: req.file.path, 
+      publicId: req.file.filename, 
+    };
+    await user.save();
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      avatar: user.avatar,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { registerUser, loginUser, getMe, uploadAvatar };

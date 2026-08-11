@@ -1,7 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { CircleUserRound, Mail, ShieldCheck, CalendarDays, Lock } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  CircleUserRound,
+  Mail,
+  ShieldCheck,
+  CalendarDays,
+  Camera,
+  Loader2,
+} from "lucide-react";
 import ProtectedLayout from "@/components/ProtectedLayout";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
@@ -16,18 +23,17 @@ function initialsOf(name = "") {
 }
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [profile, setProfile] = useState(user || null);
   const [loading, setLoading] = useState(true);
 
   const [name, setName] = useState("");
   const [savingName, setSavingName] = useState(false);
-  const [nameMessage, setNameMessage] = useState(null); // { type: "success" | "error", text }
+  const [nameMessage, setNameMessage] = useState(null);
 
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [savingPassword, setSavingPassword] = useState(false);
-  const [passwordMessage, setPasswordMessage] = useState(null);
+  const fileInputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState("");
 
   useEffect(() => {
     api
@@ -42,13 +48,45 @@ export default function ProfilePage() {
       .finally(() => setLoading(false));
   }, [user]);
 
+  const handleAvatarClick = () => fileInputRef.current?.click();
+
+  const handleAvatarChange = async (e) => {
+  const file = e.target.files?.[0];
+  e.target.value = "";
+  if (!file) return;
+
+  setAvatarError("");
+
+  if (!file.type.startsWith("image/")) {
+    setAvatarError("Please choose an image file.");
+    return;
+  }
+  if (file.size > 3 * 1024 * 1024) {
+    setAvatarError("Image must be under 3MB.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("avatar", file);
+
+  setUploading(true);
+  try {
+    const { data } = await api.post("/auth/avatar", formData);
+    setProfile((prev) => ({ ...prev, avatar: data.avatar }));
+    updateUser({ avatar: data.avatar });
+  } catch (err) {
+    console.error(err);
+    setAvatarError(err.response?.data?.message || "Failed to upload image.");
+  } finally {
+    setUploading(false);
+  }
+};
+
   const handleSaveName = async (e) => {
     e.preventDefault();
     setNameMessage(null);
     setSavingName(true);
     try {
-      // NOTE: PUT /api/auth/me does not exist on the backend yet.
-      // Add a route + controller function before this will actually persist.
       await api.put("/auth/me", { name });
       setNameMessage({ type: "success", text: "Name updated." });
     } catch (err) {
@@ -64,28 +102,6 @@ export default function ProfilePage() {
     }
   };
 
-  const handleChangePassword = async (e) => {
-    e.preventDefault();
-    setPasswordMessage(null);
-    setSavingPassword(true);
-    try {
-      // NOTE: PUT /api/auth/change-password does not exist on the backend yet.
-      await api.put("/auth/change-password", { currentPassword, newPassword });
-      setPasswordMessage({ type: "success", text: "Password changed." });
-      setCurrentPassword("");
-      setNewPassword("");
-    } catch (err) {
-      setPasswordMessage({
-        type: "error",
-        text:
-          err.response?.status === 404
-            ? "This backend doesn't have a change-password endpoint yet."
-            : err.response?.data?.message || "Failed to change password.",
-      });
-    } finally {
-      setSavingPassword(false);
-    }
-  };
 
   const joinedDate = profile?.createdAt
     ? new Date(profile.createdAt).toLocaleDateString(undefined, {
@@ -114,9 +130,47 @@ export default function ProfilePage() {
           {/* Left: identity card */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col items-center text-center">
-              <div className="w-20 h-20 rounded-full bg-teal-50 text-teal-700 flex items-center justify-center text-2xl font-semibold mb-4">
-                {initialsOf(profile?.name) || "A"}
+              <div className="relative group">
+                {profile?.avatar?.url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={profile.avatar.url}
+                    alt={profile.name}
+                    className="w-20 h-20 rounded-full object-cover mb-4"
+                  />
+                ) : (
+                  <div className="w-20 h-20 rounded-full bg-teal-50 text-teal-700 flex items-center justify-center text-2xl font-semibold mb-4">
+                    {initialsOf(profile?.name) || "A"}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleAvatarClick}
+                  disabled={uploading}
+                  className="absolute bottom-4 right-0 w-7 h-7 rounded-full bg-teal-700 hover:bg-teal-800 text-white flex items-center justify-center shadow-sm transition-colors disabled:opacity-60"
+                  aria-label="Change profile picture"
+                >
+                  {uploading ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Camera className="w-3.5 h-3.5" />
+                  )}
+                </button>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarChange}
+                />
               </div>
+
+              {avatarError && (
+                <p className="text-xs text-rose-600 mb-2 -mt-1">{avatarError}</p>
+              )}
+
               <p className="text-lg font-semibold text-slate-900">{profile?.name}</p>
               <p className="text-sm text-slate-500">{profile?.email}</p>
 
@@ -131,12 +185,15 @@ export default function ProfilePage() {
                   Member since {joinedDate}
                 </p>
               )}
+
+              <p className="mt-4 text-[11px] text-slate-400">
+                JPG, PNG or WEBP. Max 3MB.
+              </p>
             </div>
           </div>
 
           {/* Right: editable sections */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Basic info */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6">
               <div className="flex items-center gap-2 mb-5">
                 <CircleUserRound className="w-4 h-4 text-slate-400" />

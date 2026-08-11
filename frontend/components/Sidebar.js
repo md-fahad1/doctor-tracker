@@ -11,6 +11,8 @@ import {
   LogOut,
   ChevronRight,
 } from "lucide-react";
+import api from "@/lib/api";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 const mainLinks = [
@@ -34,6 +36,7 @@ function initialsOf(name = "") {
 }
 
 function NavSection({ label, links, pathname }) {
+  
   return (
     <div className="mb-5">
       <p className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
@@ -69,10 +72,24 @@ function NavSection({ label, links, pathname }) {
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const [profile, setProfile] = useState(user || null);
+  const [loading, setLoading] = useState(true);
+  const [name, setName] = useState("");
+  useEffect(() => {
+      api
+        .get("/auth/me")
+        .then(({ data }) => {
+          setProfile(data);
+          setName(data.name || "");
+        })
+        .catch(() => {
+          if (user) setName(user.name || "");
+        })
+        .finally(() => setLoading(false));
+    }, [user]);
 
   return (
     <aside className="w-64 shrink-0 bg-white border-r border-slate-200 flex flex-col h-screen sticky top-0">
-      {/* Logo */}
       <div className="px-5 py-5 flex items-center gap-2.5 border-b border-slate-100">
         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center shadow-sm shadow-teal-200">
           <Stethoscope className="w-4.5 h-4.5 text-white" />
@@ -83,23 +100,32 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 px-3 py-5 overflow-y-auto">
         <NavSection label="Main" links={mainLinks} pathname={pathname} />
         <NavSection label="Account" links={accountLinks} pathname={pathname} />
       </nav>
 
-      {/* User footer */}
       <div className="px-3 py-4 border-t border-slate-100">
-        <div className="flex items-center gap-3 px-2 py-2 mb-1 rounded-lg">
-          <div className="w-9 h-9 rounded-full bg-teal-50 text-teal-700 flex items-center justify-center text-xs font-semibold shrink-0">
-            {initialsOf(user?.name) || "A"}
-          </div>
+        <Link
+          href="/profile"
+          className="flex items-center gap-3 px-2 py-2 mb-1 rounded-lg hover:bg-slate-50 transition-colors"
+        >
+          {profile?.avatar?.url ? (
+            <img
+              src={profile.avatar.url}
+              alt={profile.name}
+              className="w-9 h-9 rounded-full object-cover shrink-0"
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-teal-50 text-teal-700 flex items-center justify-center text-xs font-semibold shrink-0">
+              {initialsOf(profile?.name) || "A"}
+            </div>
+          )}
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium text-slate-900 truncate">{user?.name}</p>
-            <p className="text-xs text-slate-400 truncate">{user?.email}</p>
+            <p className="text-sm font-medium text-slate-900 truncate">{profile?.name}</p>
+            <p className="text-xs text-slate-400 truncate">{profile?.email}</p>
           </div>
-        </div>
+        </Link>
         <button
           onClick={logout}
           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition-colors"
