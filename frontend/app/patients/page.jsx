@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
@@ -124,12 +125,12 @@ export default function PatientsPage() {
 
   return (
     <ProtectedLayout>
-      <div className="mb-6 flex items-end justify-between">
-        <div>
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
             Patients
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-500 break-words">
             {loading
               ? "Loading..."
               : `${totalPatients} patient${totalPatients === 1 ? "" : "s"} across every doctor`}
@@ -137,10 +138,9 @@ export default function PatientsPage() {
         </div>
       </div>
 
-      {/* ---------- Filters ---------- */}
-      <div className="mb-4 rounded-2xl border border-slate-200 bg-white p-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative min-w-[220px] flex-1">
+      <div className="mb-4 rounded-2xl border border-slate-200 bg-white p-3 sm:p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center">
+          <div className="relative w-full min-w-0 flex-1 lg:min-w-[220px]">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               value={search}
@@ -160,12 +160,12 @@ export default function PatientsPage() {
             )}
           </div>
 
-          <div className="relative">
+          <div className="relative w-full lg:w-44 lg:flex-shrink-0">
             <input
               value={condition}
               onChange={(e) => setCondition(e.target.value)}
               placeholder="Filter by condition"
-              className="w-44 rounded-lg border border-slate-300 py-2 pl-3 pr-8 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-600/10"
+              className="w-full rounded-lg border border-slate-300 py-2 pl-3 pr-8 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-600/10"
             />
             {condition && (
               <button
@@ -179,28 +179,33 @@ export default function PatientsPage() {
             )}
           </div>
 
-          <div className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-2.5 py-1.5 focus-within:border-teal-600 focus-within:ring-4 focus-within:ring-teal-600/10">
-            <CalendarDays className="h-4 w-4 flex-shrink-0 text-slate-400" />
-            <input
-              type="date"
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-              className="w-[124px] bg-transparent text-sm text-slate-700 focus:outline-none"
-            />
-            <span className="text-xs text-slate-400">to</span>
-            <input
-              type="date"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-              className="w-[124px] bg-transparent text-sm text-slate-700 focus:outline-none"
-            />
+          <div className="flex w-full flex-col gap-2 rounded-lg border border-slate-300 px-2.5 py-2 sm:flex-row sm:items-center sm:gap-1.5 lg:w-auto">
+            <CalendarDays className="hidden h-4 w-4 flex-shrink-0 text-slate-400 sm:block" />
+
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={from}
+                onChange={(e) => setFrom(e.target.value)}
+                className="min-w-0 flex-1 bg-transparent text-sm text-slate-700 focus:outline-none sm:w-[124px] sm:flex-none"
+              />
+
+              <span className="text-xs text-slate-400">to</span>
+
+              <input
+                type="date"
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+                className="min-w-0 flex-1 bg-transparent text-sm text-slate-700 focus:outline-none sm:w-[124px] sm:flex-none"
+              />
+            </div>
           </div>
 
           {hasActiveFilters && (
             <button
               type="button"
               onClick={clearAllFilters}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
+              className="flex w-full items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 sm:w-auto"
             >
               <X className="h-3.5 w-3.5" />
               Clear filters
@@ -209,137 +214,162 @@ export default function PatientsPage() {
         </div>
       </div>
 
-      {/* ---------- Table ---------- */}
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-        <table className="w-full text-sm">
-          <thead className="border-b border-slate-200 bg-slate-50/80 text-left">
-            <tr>
-              <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                Name
-              </th>
-              <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                Doctor
-              </th>
-              <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                Condition
-              </th>
-              <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                Age / Gender
-              </th>
-              <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                Phone
-              </th>
-              <th className="px-5 py-3"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {loading ? (
-              skeletonRows.map((_, i) => (
-                <tr key={i}>
-                  <td className="px-5 py-3.5" colSpan={6}>
-                    <div className="h-4 w-full animate-pulse rounded bg-slate-100" />
-                  </td>
-                </tr>
-              ))
-            ) : patients.length === 0 ? (
+        <div className="w-full overflow-x-auto">
+          <table className="w-full min-w-[850px] text-sm">
+            <thead className="border-b border-slate-200 bg-slate-50/80 text-left">
               <tr>
-                <td colSpan={6} className="px-5 py-14">
-                  <div className="flex flex-col items-center justify-center gap-2 text-center">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100">
-                      <SearchX className="h-5 w-5 text-slate-400" />
-                    </span>
-                    <p className="text-sm font-medium text-slate-600">
-                      No patients found
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      {hasActiveFilters
-                        ? "Try adjusting or clearing your filters."
-                        : "Patients you add will show up here."}
-                    </p>
-                    {hasActiveFilters && (
-                      <button
-                        onClick={clearAllFilters}
-                        className="mt-1 text-xs font-medium text-teal-700 hover:text-teal-800"
-                      >
-                        Clear filters
-                      </button>
-                    )}
-                  </div>
-                </td>
+                <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  Name
+                </th>
+                <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  Doctor
+                </th>
+                <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  Condition
+                </th>
+                <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  Age / Gender
+                </th>
+                <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  Phone
+                </th>
+                <th className="px-5 py-3"></th>
               </tr>
-            ) : (
-              patients.map((p) => (
-                <tr key={p._id} className="group transition-colors hover:bg-slate-50">
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
-                          AVATAR_COLORS[p.gender] || AVATAR_COLORS.other
-                        }`}
-                      >
-                        {initialsOf(p.name)}
+            </thead>
+
+            <tbody className="divide-y divide-slate-100">
+              {loading ? (
+                skeletonRows.map((_, i) => (
+                  <tr key={i}>
+                    <td className="px-5 py-3.5" colSpan={6}>
+                      <div className="h-4 w-full animate-pulse rounded bg-slate-100" />
+                    </td>
+                  </tr>
+                ))
+              ) : patients.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-5 py-14">
+                    <div className="flex flex-col items-center justify-center gap-2 text-center">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100">
+                        <SearchX className="h-5 w-5 text-slate-400" />
                       </span>
-                      <span className="font-medium text-slate-900">{p.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 text-slate-600">
-                    {p.doctor?.name ? (
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-[10px] font-semibold text-slate-500">
-                          {initialsOf(p.doctor.name)}
-                        </span>
-                        <span>{p.doctor.name}</span>
-                      </div>
-                    ) : (
-                      <span className="text-slate-400">—</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-3">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${hashColor(
-                        p.condition,
-                        CONDITION_COLORS
-                      )}`}
-                    >
-                      {p.condition}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3 capitalize text-slate-600">
-                    {p.age} / {p.gender}
-                  </td>
-                  <td className="px-5 py-3 font-[ui-monospace] text-[13px] text-slate-500">
-                    {p.phone}
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center justify-end gap-1 transition-opacity opacity-100">
-                      <button
-                        onClick={() => setEditing({ ...p })}
-                        aria-label="Edit patient"
-                        className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-teal-50 hover:text-teal-700"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(p._id)}
-                        aria-label="Delete patient"
-                        className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-600"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+
+                      <p className="text-sm font-medium text-slate-600">
+                        No patients found
+                      </p>
+
+                      <p className="text-xs text-slate-400">
+                        {hasActiveFilters
+                          ? "Try adjusting or clearing your filters."
+                          : "Patients you add will show up here."}
+                      </p>
+
+                      {hasActiveFilters && (
+                        <button
+                          onClick={clearAllFilters}
+                          className="mt-1 text-xs font-medium text-teal-700 hover:text-teal-800"
+                        >
+                          Clear filters
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                patients.map((p) => (
+                  <tr
+                    key={p._id}
+                    className="group transition-colors hover:bg-slate-50"
+                  >
+                    <td className="px-5 py-3">
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
+                            AVATAR_COLORS[p.gender] || AVATAR_COLORS.other
+                          }`}
+                        >
+                          {initialsOf(p.name)}
+                        </span>
+
+                        <span className="font-medium text-slate-900 whitespace-nowrap">
+                          {p.name}
+                        </span>
+                      </div>
+                    </td>
+
+                    <td className="px-5 py-3 text-slate-600">
+                      {p.doctor?.name ? (
+                        <div className="flex items-center gap-2 whitespace-nowrap">
+                          <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-[10px] font-semibold text-slate-500">
+                            {initialsOf(p.doctor.name)}
+                          </span>
+                          <span>{p.doctor.name}</span>
+                        </div>
+                      ) : (
+                        <span className="text-slate-400">—</span>
+                      )}
+                    </td>
+
+                    <td className="px-5 py-3">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 whitespace-nowrap ${hashColor(
+                          p.condition,
+                          CONDITION_COLORS
+                        )}`}
+                      >
+                        {p.condition}
+                      </span>
+                    </td>
+
+                    <td className="px-5 py-3 capitalize text-slate-600 whitespace-nowrap">
+                      {p.age} / {p.gender}
+                    </td>
+
+                    <td className="px-5 py-3 font-[ui-monospace] text-[13px] text-slate-500 whitespace-nowrap">
+                      {p.phone}
+                    </td>
+
+                    <td className="px-5 py-3">
+                      <div className="flex items-center justify-end gap-1 opacity-100 transition-opacity">
+                        <button
+                          onClick={() => setEditing({ ...p })}
+                          aria-label="Edit patient"
+                          className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-teal-50 hover:text-teal-700"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+
+                        <button
+                          onClick={() => handleDelete(p._id)}
+                          aria-label="Delete patient"
+                          className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <div className="mt-4">
-        <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+      <div className="mt-4 overflow-x-auto">
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       </div>
 
-      <Modal open={!!editing} onClose={() => setEditing(null)} title="Edit patient">
+      <Modal
+        open={!!editing}
+        onClose={() => setEditing(null)}
+        title="Edit patient"
+      >
         {editing && (
           <form onSubmit={handleUpdate} className="space-y-4">
             {error && (
@@ -352,35 +382,45 @@ export default function PatientsPage() {
               <label className="mb-1.5 block text-[13px] font-medium text-slate-700">
                 Name
               </label>
+
               <input
                 required
                 value={editing.name}
-                onChange={(e) => setEditing({ ...editing, name: e.target.value })}
+                onChange={(e) =>
+                  setEditing({ ...editing, name: e.target.value })
+                }
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 transition-colors focus:border-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-600/10"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-3">
               <div>
                 <label className="mb-1.5 block text-[13px] font-medium text-slate-700">
                   Age
                 </label>
+
                 <input
                   required
                   type="number"
                   min="0"
                   value={editing.age}
-                  onChange={(e) => setEditing({ ...editing, age: e.target.value })}
+                  onChange={(e) =>
+                    setEditing({ ...editing, age: e.target.value })
+                  }
                   className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 transition-colors focus:border-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-600/10"
                 />
               </div>
+
               <div>
                 <label className="mb-1.5 block text-[13px] font-medium text-slate-700">
                   Gender
                 </label>
+
                 <select
                   value={editing.gender}
-                  onChange={(e) => setEditing({ ...editing, gender: e.target.value })}
+                  onChange={(e) =>
+                    setEditing({ ...editing, gender: e.target.value })
+                  }
                   className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 transition-colors focus:border-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-600/10"
                 >
                   <option value="male">Male</option>
@@ -394,10 +434,13 @@ export default function PatientsPage() {
               <label className="mb-1.5 block text-[13px] font-medium text-slate-700">
                 Phone
               </label>
+
               <input
                 required
                 value={editing.phone}
-                onChange={(e) => setEditing({ ...editing, phone: e.target.value })}
+                onChange={(e) =>
+                  setEditing({ ...editing, phone: e.target.value })
+                }
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 transition-colors focus:border-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-600/10"
               />
             </div>
@@ -406,10 +449,13 @@ export default function PatientsPage() {
               <label className="mb-1.5 block text-[13px] font-medium text-slate-700">
                 Condition
               </label>
+
               <input
                 required
                 value={editing.condition}
-                onChange={(e) => setEditing({ ...editing, condition: e.target.value })}
+                onChange={(e) =>
+                  setEditing({ ...editing, condition: e.target.value })
+                }
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 transition-colors focus:border-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-600/10"
               />
             </div>
@@ -427,3 +473,4 @@ export default function PatientsPage() {
     </ProtectedLayout>
   );
 }
+

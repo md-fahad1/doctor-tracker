@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -115,40 +116,47 @@ export default function DoctorDetailPage() {
 
       {loading ? (
         <div className="space-y-6 animate-pulse">
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 flex items-center gap-5">
-            <div className="w-16 h-16 rounded-full bg-slate-100 shrink-0" />
-            <div className="space-y-2 flex-1">
-              <div className="h-4 bg-slate-100 rounded w-40" />
-              <div className="h-3 bg-slate-100 rounded w-56" />
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 flex items-center gap-4 sm:gap-5">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-slate-100 shrink-0" />
+            <div className="space-y-2 flex-1 min-w-0">
+              <div className="h-4 bg-slate-100 rounded w-40 max-w-full" />
+              <div className="h-3 bg-slate-100 rounded w-56 max-w-full" />
             </div>
           </div>
           <div className="bg-white rounded-2xl border border-slate-200 h-64" />
         </div>
       ) : (
         <>
-          {/* Doctor profile header */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
-            <div className="flex items-start justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-5">
-                <div className="w-16 h-16 rounded-full bg-teal-50 text-teal-700 flex items-center justify-center text-xl font-semibold shrink-0">
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 mb-6">
+            <div className="flex items-start justify-between flex-col sm:flex-row gap-4">
+              <div className="flex items-start sm:items-center gap-4 sm:gap-5 min-w-0 w-full sm:w-auto">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-teal-50 text-teal-700 flex items-center justify-center text-xl font-semibold shrink-0">
                   {initials(doctor.name)}
                 </div>
-                <div>
-                  <h1 className="text-xl font-semibold text-slate-900">{doctor.name}</h1>
+
+                <div className="min-w-0">
+                  <h1 className="text-xl font-semibold text-slate-900 break-words">
+                    {doctor.name}
+                  </h1>
+
                   <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                     <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-teal-50 text-teal-700 text-xs font-medium">
                       {doctor.specialization}
                     </span>
+
                     <span className="inline-flex items-center gap-1 text-xs text-slate-500">
-                      <Building2 className="w-3.5 h-3.5" /> {doctor.hospital}
+                      <Building2 className="w-3.5 h-3.5 shrink-0" />
+                      <span className="break-words">{doctor.hospital}</span>
                     </span>
                   </div>
-                  <div className="flex items-center gap-4 mt-2 text-xs text-slate-400">
-                    <span className="inline-flex items-center gap-1">
-                      <Phone className="w-3.5 h-3.5" /> {doctor.phone}
+
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 text-xs text-slate-400">
+                    <span className="inline-flex items-center gap-1 break-all">
+                      <Phone className="w-3.5 h-3.5 shrink-0" /> {doctor.phone}
                     </span>
-                    <span className="inline-flex items-center gap-1">
-                      <Mail className="w-3.5 h-3.5" /> {doctor.email}
+
+                    <span className="inline-flex items-center gap-1 break-all">
+                      <Mail className="w-3.5 h-3.5 shrink-0" /> {doctor.email}
                     </span>
                   </div>
                 </div>
@@ -156,97 +164,111 @@ export default function DoctorDetailPage() {
 
               <button
                 onClick={() => setModalOpen(true)}
-                className="flex items-center gap-2 bg-teal-700 hover:bg-teal-800 text-white text-sm font-medium rounded-lg px-4 py-2.5 shrink-0 transition-colors"
+                className="flex items-center justify-center gap-2 bg-teal-700 hover:bg-teal-800 text-white text-sm font-medium rounded-lg px-4 py-2.5 w-full sm:w-auto shrink-0 transition-colors"
               >
                 <Plus className="w-4 h-4" /> Add Patient
               </button>
             </div>
           </div>
 
-          {/* Quick stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
             <div className="bg-white rounded-2xl border border-slate-200 p-4">
               <p className="text-xs text-slate-400 mb-1">Total Patients</p>
               <p className="text-2xl font-semibold text-slate-900">{patients.length}</p>
             </div>
+
             <div className="bg-white rounded-2xl border border-slate-200 p-4">
               <p className="text-xs text-slate-400 mb-1">Male</p>
               <p className="text-2xl font-semibold text-slate-900">{maleCount}</p>
             </div>
+
             <div className="bg-white rounded-2xl border border-slate-200 p-4">
               <p className="text-xs text-slate-400 mb-1">Female</p>
               <p className="text-2xl font-semibold text-slate-900">{femaleCount}</p>
             </div>
+
             <div className="bg-white rounded-2xl border border-slate-200 p-4">
               <p className="text-xs text-slate-400 mb-1">Avg. Age</p>
               <p className="text-2xl font-semibold text-slate-900">{avgAge || "—"}</p>
             </div>
           </div>
 
-          {/* Patients table */}
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div className="px-4 sm:px-5 py-4 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                 <Users className="w-4 h-4 text-slate-400" /> Patients
               </h2>
+
               <span className="text-xs text-slate-400">{patients.length} total</span>
             </div>
 
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-slate-500 text-left">
-                <tr>
-                  <th className="px-5 py-3 font-medium">Patient</th>
-                  <th className="px-5 py-3 font-medium">Age / Gender</th>
-                  <th className="px-5 py-3 font-medium">Condition</th>
-                  <th className="px-5 py-3 font-medium">Phone</th>
-                  <th className="px-5 py-3"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {patients.length === 0 ? (
+            <div className="w-full overflow-x-auto">
+              <table className="w-full min-w-[700px] text-sm">
+                <thead className="bg-slate-50 text-slate-500 text-left">
                   <tr>
-                    <td colSpan={5} className="px-5 py-12 text-center text-slate-400">
-                      No patients yet for this doctor.
-                    </td>
+                    <th className="px-5 py-3 font-medium">Patient</th>
+                    <th className="px-5 py-3 font-medium">Age / Gender</th>
+                    <th className="px-5 py-3 font-medium">Condition</th>
+                    <th className="px-5 py-3 font-medium">Phone</th>
+                    <th className="px-5 py-3"></th>
                   </tr>
-                ) : (
-                  patients.map((p, i) => (
-                    <tr key={p._id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-5 py-3">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${AVATAR_COLORS[i % AVATAR_COLORS.length]}`}
-                          >
-                            {initials(p.name)}
-                          </div>
-                          <span className="font-medium text-slate-900">{p.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-5 py-3 text-slate-600 capitalize">
-                        {p.age} yrs · {p.gender}
-                      </td>
-                      <td className="px-5 py-3">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${conditionColor(p.condition)}`}
-                        >
-                          {p.condition}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3 text-slate-600">{p.phone}</td>
-                      <td className="px-5 py-3 text-right">
-                        <button
-                          onClick={() => handleDeletePatient(p._id)}
-                          className="text-slate-400 hover:text-red-600 transition-colors"
-                          title="Remove patient"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                </thead>
+
+                <tbody className="divide-y divide-slate-100">
+                  {patients.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-5 py-12 text-center text-slate-400">
+                        No patients yet for this doctor.
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    patients.map((p, i) => (
+                      <tr key={p._id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-5 py-3">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${AVATAR_COLORS[i % AVATAR_COLORS.length]}`}
+                            >
+                              {initials(p.name)}
+                            </div>
+
+                            <span className="font-medium text-slate-900 whitespace-nowrap">
+                              {p.name}
+                            </span>
+                          </div>
+                        </td>
+
+                        <td className="px-5 py-3 text-slate-600 capitalize whitespace-nowrap">
+                          {p.age} yrs · {p.gender}
+                        </td>
+
+                        <td className="px-5 py-3">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${conditionColor(p.condition)}`}
+                          >
+                            {p.condition}
+                          </span>
+                        </td>
+
+                        <td className="px-5 py-3 text-slate-600 whitespace-nowrap">
+                          {p.phone}
+                        </td>
+
+                        <td className="px-5 py-3 text-right">
+                          <button
+                            onClick={() => handleDeletePatient(p._id)}
+                            className="text-slate-400 hover:text-red-600 transition-colors"
+                            title="Remove patient"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </>
       )}
@@ -270,7 +292,7 @@ export default function DoctorDetailPage() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-3">
             <div>
               <FieldLabel>Age</FieldLabel>
               <input
@@ -283,6 +305,7 @@ export default function DoctorDetailPage() {
                 className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-600"
               />
             </div>
+
             <div>
               <FieldLabel>Gender</FieldLabel>
               <select

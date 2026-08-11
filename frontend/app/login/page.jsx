@@ -77,7 +77,7 @@ export default function LoginPage() {
       className={`${display.variable} ${body.variable} ${mono.variable} min-h-screen flex flex-col lg:flex-row bg-white font-[family-name:var(--font-body)]`}
     >
       {/* ---------- Left / top panel : brand + context ---------- */}
-      <div className="relative overflow-hidden bg-slate-950 px-6 py-10 sm:px-10 sm:py-12 lg:flex lg:w-[44%] lg:flex-col lg:justify-between lg:px-16 lg:py-14">
+      <div className="relative hidden md:block overflow-hidden bg-slate-950 px-6 py-8 sm:px-10 sm:py-12 lg:flex lg:w-[44%] lg:flex-col lg:justify-between lg:px-16 lg:py-14">
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.06]"
           style={{
@@ -98,17 +98,20 @@ export default function LoginPage() {
             Admin Console
           </div>
 
-          <h1 className="mt-10 max-w-sm font-[family-name:var(--font-display)] text-[26px] font-medium leading-[1.25] tracking-tight text-white sm:text-[28px] lg:mt-16 lg:text-[30px]">
+          <h1 className="mt-8 max-w-sm font-[family-name:var(--font-display)] text-[22px] font-medium leading-[1.25] tracking-tight text-white sm:mt-10 sm:text-[26px] lg:mt-16 lg:text-[30px]">
             Run your clinic&rsquo;s day from one console.
           </h1>
-          <p className="mt-3 hidden max-w-xs text-[14.5px] leading-relaxed text-slate-400 sm:block">
+          <p className="mt-3 max-w-xs text-[13px] leading-relaxed text-slate-400 sm:text-[14.5px]">
             Scheduling, patient records, and care teams, brought together for
             the pace of a real clinic.
           </p>
 
-          <ul className="mt-9 hidden space-y-3.5 sm:block">
+          <ul className="mt-6 space-y-3 sm:mt-9 sm:space-y-3.5">
             {FEATURES.map(({ icon: Icon, text }) => (
-              <li key={text} className="flex items-center gap-3 text-[13.5px] text-slate-300">
+              <li
+                key={text}
+                className="flex items-center gap-3 text-[12.5px] text-slate-300 sm:text-[13.5px]"
+              >
                 <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-white/[0.06] ring-1 ring-white/[0.08]">
                   <Icon className="h-3.5 w-3.5 text-teal-400" strokeWidth={2} />
                 </span>
@@ -118,21 +121,21 @@ export default function LoginPage() {
           </ul>
         </div>
 
-        <div className="relative mt-10 flex items-center gap-2 border-t border-white/[0.08] pt-5 font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.2em] text-slate-500 lg:mt-0">
+        <div className="relative mt-8 flex items-center gap-2 border-t border-white/[0.08] pt-5 font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.2em] text-slate-500 lg:mt-0">
           <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-teal-400" />
           System operational
         </div>
       </div>
 
       {/* ---------- Right / bottom panel : form ---------- */}
-      <div className="flex flex-1 items-center justify-center bg-slate-50 px-6 py-12 sm:px-10">
+      <div className="flex flex-1 items-center justify-center bg-slate-50 px-4 py-10 sm:px-10 sm:py-12">
         <div className="w-full max-w-[380px]">
-          <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_12px_32px_-16px_rgba(15,23,42,0.12)] sm:p-8">
-            <div className="mb-7">
-              <h2 className="font-[family-name:var(--font-display)] text-[22px] font-semibold tracking-tight text-slate-900">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_12px_32px_-16px_rgba(15,23,42,0.12)] sm:p-7 md:p-8">
+            <div className="mb-6 sm:mb-7">
+              <h2 className="font-[family-name:var(--font-display)] text-[20px] font-semibold tracking-tight text-slate-900 sm:text-[22px]">
                 Welcome back
               </h2>
-              <p className="mt-1.5 text-[13.5px] text-slate-500">
+              <p className="mt-1.5 text-[13px] text-slate-500 sm:text-[13.5px]">
                 Sign in to manage your clinic&rsquo;s operations.
               </p>
             </div>
@@ -161,14 +164,14 @@ export default function LoginPage() {
                     autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3.5 text-[14px] text-slate-900 placeholder:text-slate-400 shadow-sm transition-colors focus:border-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-600/10"
+                    className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3.5 text-[16px] text-slate-900 placeholder:text-slate-400 shadow-sm transition-colors focus:border-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-600/10 sm:text-[14px]"
                     placeholder="you@hospital.com"
                   />
                 </div>
               </div>
 
               <div>
-                <div className="mb-1.5 flex items-center justify-between">
+                <div className="mb-1.5 flex items-center justify-between gap-2">
                   <label
                     htmlFor="password"
                     className="text-[13px] font-medium text-slate-700"
@@ -191,7 +194,7 @@ export default function LoginPage() {
                     autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-10 text-[14px] text-slate-900 placeholder:text-slate-400 shadow-sm transition-colors focus:border-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-600/10"
+                    className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-10 text-[16px] text-slate-900 placeholder:text-slate-400 shadow-sm transition-colors focus:border-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-600/10 sm:text-[14px]"
                     placeholder="••••••••"
                   />
                   <button

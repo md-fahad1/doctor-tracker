@@ -45,13 +45,13 @@ function CircleStat({ label, value, subtitle, icon: Icon, ring }) {
     violet: "border-violet-500 text-violet-600",
   };
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4">
-      <div className={`w-14 h-14 rounded-full border-2 flex items-center justify-center shrink-0 ${ringClasses[ring]}`}>
-        <Icon className="w-6 h-6" />
+    <div className="bg-white rounded-2xl border border-slate-200 p-2 md:p-5 flex items-center gap-2 md:gap-4">
+      <div className={`md:w-14 md:h-14 w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 ${ringClasses[ring]}`}>
+        <Icon className="w-4 md:w-6  h-4 md:h-6" />
       </div>
       <div>
         <p className="text-sm text-slate-500">{label}</p>
-        <p className="text-2xl font-bold text-slate-900 leading-tight">{value}</p>
+        <p className="text-xl md:text-2xl font-bold text-slate-900 leading-tight">{value}</p>
         <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>
       </div>
     </div>
@@ -154,7 +154,7 @@ export default function DashboardPage() {
       ) : (
         <>
           {/* Stat cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-1 md:gap-4 mb-6">
             <CircleStat
               label="Total Doctors"
               value={stats.totalDoctors}

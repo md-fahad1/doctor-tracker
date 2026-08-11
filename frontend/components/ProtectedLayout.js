@@ -24,9 +24,16 @@ export default function ProtectedLayout({ children }) {
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="min-h-screen bg-slate-50">
+
       <Sidebar />
-      <main className="flex-1 p-6 lg:p-8 max-w-[1400px]">{children}</main>
+
+     
+      <main className="min-h-screen pt-14 lg:pt-0 lg:pl-64">
+        <div className="p-4 sm:p-6 lg:p-8 max-w-[1400px] mx-auto">
+          {children}
+        </div>
+      </main>
     </div>
   );
 }
