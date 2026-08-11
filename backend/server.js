@@ -5,7 +5,9 @@ const connectDB = require("./config/db");
 const { errorHandler, notFound } = require("./middleware/errorHandler");
 
 const authRoutes = require("./routes/authRoutes");
-
+const doctorRoutes = require("./routes/doctorRoutes");
+const patientRoutes = require("./routes/patientRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 connectDB();
 
@@ -19,10 +21,12 @@ app.use(
 );
 app.use(express.json());
 
-
+app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
 app.use("/api/auth", authRoutes);
-
+app.use("/api/doctors", doctorRoutes);
+app.use("/api/patients", patientRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

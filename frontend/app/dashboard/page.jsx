@@ -1,6 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
 import { Stethoscope, Users, TrendingUp } from "lucide-react";
 import ProtectedLayout from "@/components/ProtectedLayout";
 import StatCard from "@/components/StatCard";
@@ -10,24 +25,16 @@ const MONTH_NAMES = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
-
-const BAR_COLORS = [
-  "bg-sky-600", "bg-violet-600", "bg-emerald-600", "bg-amber-500",
-  "bg-rose-500", "bg-cyan-600", "bg-indigo-600", "bg-pink-600",
-];
+const PIE_COLORS = ["#0284c7", "#7c3aed", "#059669", "#d97706", "#dc2626", "#0891b2", "#4f46e5", "#db2777"];
 
 export default function DashboardPage() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     api
       .get("/dashboard/stats")
       .then(({ data }) => setStats(data))
-      .catch((err) => {
-        setError(err.response?.data?.message || "Failed to load dashboard stats");
-      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -36,14 +43,6 @@ export default function DashboardPage() {
       name: MONTH_NAMES[m.month - 1],
       patients: m.count,
     })) || [];
-
-  const maxPatientsPerDoctor = stats
-    ? Math.max(1, ...stats.patientsPerDoctor.map((d) => d.patientCount))
-    : 1;
-  const maxTrend = Math.max(1, ...trendData.map((d) => d.patients));
-  const totalConditionCount = stats
-    ? stats.conditionBreakdown.reduce((sum, c) => sum + c.count, 0)
-    : 0;
 
   return (
     <ProtectedLayout>
@@ -54,12 +53,6 @@ export default function DashboardPage() {
 
       {loading ? (
         <p className="text-sm text-slate-400">Loading analytics...</p>
-      ) : error ? (
-        <div className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-3">
-          {error}
-        </div>
-      ) : !stats ? (
-        <p className="text-sm text-slate-400">No data available.</p>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
@@ -78,101 +71,59 @@ export default function DashboardPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Patients per doctor — vertical bar chart built from divs */}
             <div className="bg-white rounded-2xl border border-slate-200 p-5">
-              <h2 className="text-sm font-semibold text-slate-900 mb-6">
+              <h2 className="text-sm font-semibold text-slate-900 mb-4">
                 Patients per Doctor (Top 10)
               </h2>
-              {stats.patientsPerDoctor.length === 0 ? (
-                <p className="text-sm text-slate-400">No data yet.</p>
-              ) : (
-                <div className="flex items-end gap-3 h-56">
-                  {stats.patientsPerDoctor.map((d, i) => (
-                    <div key={d.doctorId} className="flex-1 flex flex-col items-center gap-2 group">
-                      <span className="text-xs font-medium text-slate-500 group-hover:text-slate-900">
-                        {d.patientCount}
-                      </span>
-                      <div
-                        className={`w-full rounded-t-md ${BAR_COLORS[i % BAR_COLORS.length]} transition-all`}
-                        style={{
-                          height: `${(d.patientCount / maxPatientsPerDoctor) * 100}%`,
-                          minHeight: "4px",
-                        }}
-                      />
-                      <span
-                        className="text-[10px] text-slate-500 text-center leading-tight w-full truncate"
-                        title={d.doctorName}
-                      >
-                        {d.doctorName}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={stats.patientsPerDoctor}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="doctorName" tick={{ fontSize: 11 }} interval={0} angle={-20} textAnchor="end" height={60} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Bar dataKey="patientCount" fill="#0284c7" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
 
-            {/* Monthly patient trend — bar chart */}
             <div className="bg-white rounded-2xl border border-slate-200 p-5">
-              <h2 className="text-sm font-semibold text-slate-900 mb-6">
+              <h2 className="text-sm font-semibold text-slate-900 mb-4">
                 New Patients (Last 6 Months)
               </h2>
-              {trendData.length === 0 ? (
-                <p className="text-sm text-slate-400">No data yet.</p>
-              ) : (
-                <div className="flex items-end gap-3 h-56">
-                  {trendData.map((m) => (
-                    <div key={m.name} className="flex-1 flex flex-col items-center gap-2 group">
-                      <span className="text-xs font-medium text-slate-500 group-hover:text-slate-900">
-                        {m.patients}
-                      </span>
-                      <div
-                        className="w-full rounded-t-md bg-emerald-600 transition-all"
-                        style={{
-                          height: `${(m.patients / maxTrend) * 100}%`,
-                          minHeight: "4px",
-                        }}
-                      />
-                      <span className="text-[10px] text-slate-500">{m.name}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={trendData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="patients" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
 
-            {/* Patients by condition — horizontal proportional bars */}
             <div className="bg-white rounded-2xl border border-slate-200 p-5 lg:col-span-2">
-              <h2 className="text-sm font-semibold text-slate-900 mb-5">
+              <h2 className="text-sm font-semibold text-slate-900 mb-4">
                 Patients by Condition
               </h2>
-              {stats.conditionBreakdown.length === 0 ? (
-                <p className="text-sm text-slate-400">No data yet.</p>
-              ) : (
-                <div className="space-y-3">
-                  {stats.conditionBreakdown.map((c, i) => {
-                    const pct = totalConditionCount
-                      ? Math.round((c.count / totalConditionCount) * 100)
-                      : 0;
-                    return (
-                      <div key={c.condition}>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium text-slate-700">
-                            {c.condition}
-                          </span>
-                          <span className="text-xs text-slate-500">
-                            {c.count} ({pct}%)
-                          </span>
-                        </div>
-                        <div className="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden">
-                          <div
-                            className={`h-full rounded-full ${BAR_COLORS[i % BAR_COLORS.length]}`}
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={stats.conditionBreakdown}
+                    dataKey="count"
+                    nameKey="condition"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label={(entry) => entry.condition}
+                  >
+                    {stats.conditionBreakdown.map((_, i) => (
+                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </>
