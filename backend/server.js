@@ -4,6 +4,7 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 const { errorHandler, notFound } = require("./middleware/errorHandler");
 
+const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 const doctorRoutes = require("./routes/doctorRoutes");
 const patientRoutes = require("./routes/patientRoutes");
@@ -22,7 +23,7 @@ app.use(
 app.use(express.json());
 
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
-
+app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/doctors", doctorRoutes);
 app.use("/api/patients", patientRoutes);

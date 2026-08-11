@@ -1,19 +1,12 @@
-
 "use client";
 
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import {
-  Search,
-  Pencil,
-  Trash2,
-  X,
-  CalendarDays,
-  SearchX,
-} from "lucide-react";
+import { Search, Pencil, Trash2, X, CalendarDays, SearchX } from "lucide-react";
 import ProtectedLayout from "@/components/ProtectedLayout";
 import Modal from "@/components/Modal";
 import Pagination from "@/components/Pagination";
 import api from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 const AVATAR_COLORS = {
   male: "bg-teal-50 text-teal-700 ring-1 ring-teal-100",
@@ -41,7 +34,8 @@ function initialsOf(name = "") {
 
 function hashColor(str = "", palette) {
   let hash = 0;
-  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < str.length; i++)
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
   return palette[Math.abs(hash) % palette.length];
 }
 
@@ -55,7 +49,8 @@ export default function PatientsPage() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [loading, setLoading] = useState(true);
-
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -74,7 +69,14 @@ export default function PatientsPage() {
     setLoading(true);
     try {
       const { data } = await api.get("/patients", {
-        params: { search: effectiveSearch, condition, from, to, page, limit: 10 },
+        params: {
+          search: effectiveSearch,
+          condition,
+          from,
+          to,
+          page,
+          limit: 10,
+        },
       });
       if (currentRequest !== requestId.current) return;
       setPatients(data.patients);
@@ -315,7 +317,7 @@ export default function PatientsPage() {
                       <span
                         className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 whitespace-nowrap ${hashColor(
                           p.condition,
-                          CONDITION_COLORS
+                          CONDITION_COLORS,
                         )}`}
                       >
                         {p.condition}
@@ -331,23 +333,23 @@ export default function PatientsPage() {
                     </td>
 
                     <td className="px-5 py-3">
-                      <div className="flex items-center justify-end gap-1 opacity-100 transition-opacity">
-                        <button
-                          onClick={() => setEditing({ ...p })}
-                          aria-label="Edit patient"
-                          className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-teal-50 hover:text-teal-700"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
+                      {isAdmin && (
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => setEditingDoctor({ ...doc })}
+                            className="rounded-lg p-1.5 text-slate-500 hover:bg-teal-50 hover:text-teal-700"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
 
-                        <button
-                          onClick={() => handleDelete(p._id)}
-                          aria-label="Delete patient"
-                          className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-600"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
+                          <button
+                            onClick={() => handleDeleteDoctor(doc._id)}
+                            className="rounded-lg p-1.5 text-slate-500 hover:bg-rose-50 hover:text-rose-600"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -473,4 +475,3 @@ export default function PatientsPage() {
     </ProtectedLayout>
   );
 }
-

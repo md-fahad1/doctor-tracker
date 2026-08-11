@@ -21,8 +21,8 @@ const mainLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/doctors", label: "Doctors", icon: Stethoscope },
   { href: "/patients", label: "Patients", icon: Users },
+  { href: "/users", label: "Users", icon: Users, adminOnly: true },
 ];
-
 const accountLinks = [
   { href: "/profile", label: "Profile", icon: CircleUserRound },
   { href: "/settings", label: "Settings", icon: Settings },
@@ -38,6 +38,8 @@ function initialsOf(name = "") {
 }
 
 function NavSection({ label, links, pathname, onNavigate }) {
+
+  
   return (
     <div className="mb-5">
       <p className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
@@ -62,7 +64,9 @@ function NavSection({ label, links, pathname, onNavigate }) {
               )}
               <Icon
                 className={`w-4 h-4 shrink-0 ${
-                  active ? "text-teal-600" : "text-slate-400 group-hover:text-slate-600"
+                  active
+                    ? "text-teal-600"
+                    : "text-slate-400 group-hover:text-slate-600"
                 }`}
               />
               <span className="flex-1">{label}</span>
@@ -158,8 +162,12 @@ export default function Sidebar() {
               <Stethoscope className="w-4.5 h-4.5 text-white" />
             </div>
             <div>
-              <p className="font-semibold text-slate-900 leading-tight">Doctor Tracker</p>
-              <p className="text-[11px] text-slate-400 leading-tight">Admin Panel</p>
+              <p className="font-semibold text-slate-900 leading-tight">
+                Doctor Tracker
+              </p>
+              <p className="text-[11px] text-slate-400 leading-tight">
+                {profile?.role === "admin" ? "Administrator" : "User"}
+              </p>
             </div>
           </div>
           <button
@@ -174,10 +182,13 @@ export default function Sidebar() {
         <nav className="flex-1 px-3 py-5 overflow-y-auto">
           <NavSection
             label="Main"
-            links={mainLinks}
+            links={mainLinks.filter(
+              (link) => !link.adminOnly || user?.role === "admin",
+            )}
             pathname={pathname}
             onNavigate={closeMobile}
           />
+
           <NavSection
             label="Account"
             links={accountLinks}
@@ -204,8 +215,12 @@ export default function Sidebar() {
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-slate-900 truncate">{profile?.name}</p>
-              <p className="text-xs text-slate-400 truncate">{profile?.email}</p>
+              <p className="text-sm font-medium text-slate-900 truncate">
+                {profile?.name}
+              </p>
+              <p className="text-xs text-slate-400 truncate">
+                {profile?.email}
+              </p>
             </div>
           </Link>
           <button

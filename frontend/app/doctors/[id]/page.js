@@ -1,14 +1,28 @@
-
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Plus, Trash2, Phone, Mail, Building2, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  Plus,
+  Trash2,
+  Phone,
+  Mail,
+  Building2,
+  Users,
+} from "lucide-react";
 import ProtectedLayout from "@/components/ProtectedLayout";
 import Modal from "@/components/Modal";
 import api from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
-const emptyForm = { name: "", age: "", gender: "male", phone: "", condition: "" };
+const emptyForm = {
+  name: "",
+  age: "",
+  gender: "male",
+  phone: "",
+  condition: "",
+};
 
 const CONDITION_COLORS = [
   "bg-sky-50 text-sky-700",
@@ -38,12 +52,17 @@ function initials(name = "") {
 
 function conditionColor(condition) {
   let hash = 0;
-  for (let i = 0; i < condition.length; i++) hash = condition.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < condition.length; i++)
+    hash = condition.charCodeAt(i) + ((hash << 5) - hash);
   return CONDITION_COLORS[Math.abs(hash) % CONDITION_COLORS.length];
 }
 
 function FieldLabel({ children }) {
-  return <label className="block text-xs font-medium text-slate-600 mb-1">{children}</label>;
+  return (
+    <label className="block text-xs font-medium text-slate-600 mb-1">
+      {children}
+    </label>
+  );
 }
 
 export default function DoctorDetailPage() {
@@ -59,6 +78,8 @@ export default function DoctorDetailPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -102,7 +123,10 @@ export default function DoctorDetailPage() {
   const maleCount = patients.filter((p) => p.gender === "male").length;
   const femaleCount = patients.filter((p) => p.gender === "female").length;
   const avgAge = patients.length
-    ? Math.round(patients.reduce((sum, p) => sum + Number(p.age || 0), 0) / patients.length)
+    ? Math.round(
+        patients.reduce((sum, p) => sum + Number(p.age || 0), 0) /
+          patients.length,
+      )
     : 0;
 
   return (
@@ -162,34 +186,45 @@ export default function DoctorDetailPage() {
                 </div>
               </div>
 
-              <button
-                onClick={() => setModalOpen(true)}
-                className="flex items-center justify-center gap-2 bg-teal-700 hover:bg-teal-800 text-white text-sm font-medium rounded-lg px-4 py-2.5 w-full sm:w-auto shrink-0 transition-colors"
-              >
-                <Plus className="w-4 h-4" /> Add Patient
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => setModalOpen(true)}
+                  className="flex items-center gap-2 bg-teal-700 hover:bg-teal-800 text-white text-sm font-medium rounded-lg px-4 py-2.5"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Patient
+                </button>
+              )}
             </div>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
             <div className="bg-white rounded-2xl border border-slate-200 p-4">
               <p className="text-xs text-slate-400 mb-1">Total Patients</p>
-              <p className="text-2xl font-semibold text-slate-900">{patients.length}</p>
+              <p className="text-2xl font-semibold text-slate-900">
+                {patients.length}
+              </p>
             </div>
 
             <div className="bg-white rounded-2xl border border-slate-200 p-4">
               <p className="text-xs text-slate-400 mb-1">Male</p>
-              <p className="text-2xl font-semibold text-slate-900">{maleCount}</p>
+              <p className="text-2xl font-semibold text-slate-900">
+                {maleCount}
+              </p>
             </div>
 
             <div className="bg-white rounded-2xl border border-slate-200 p-4">
               <p className="text-xs text-slate-400 mb-1">Female</p>
-              <p className="text-2xl font-semibold text-slate-900">{femaleCount}</p>
+              <p className="text-2xl font-semibold text-slate-900">
+                {femaleCount}
+              </p>
             </div>
 
             <div className="bg-white rounded-2xl border border-slate-200 p-4">
               <p className="text-xs text-slate-400 mb-1">Avg. Age</p>
-              <p className="text-2xl font-semibold text-slate-900">{avgAge || "—"}</p>
+              <p className="text-2xl font-semibold text-slate-900">
+                {avgAge || "—"}
+              </p>
             </div>
           </div>
 
@@ -199,7 +234,9 @@ export default function DoctorDetailPage() {
                 <Users className="w-4 h-4 text-slate-400" /> Patients
               </h2>
 
-              <span className="text-xs text-slate-400">{patients.length} total</span>
+              <span className="text-xs text-slate-400">
+                {patients.length} total
+              </span>
             </div>
 
             <div className="w-full overflow-x-auto">
@@ -217,13 +254,19 @@ export default function DoctorDetailPage() {
                 <tbody className="divide-y divide-slate-100">
                   {patients.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-5 py-12 text-center text-slate-400">
+                      <td
+                        colSpan={5}
+                        className="px-5 py-12 text-center text-slate-400"
+                      >
                         No patients yet for this doctor.
                       </td>
                     </tr>
                   ) : (
                     patients.map((p, i) => (
-                      <tr key={p._id} className="hover:bg-slate-50 transition-colors">
+                      <tr
+                        key={p._id}
+                        className="hover:bg-slate-50 transition-colors"
+                      >
                         <td className="px-5 py-3">
                           <div className="flex items-center gap-3">
                             <div
@@ -255,13 +298,14 @@ export default function DoctorDetailPage() {
                         </td>
 
                         <td className="px-5 py-3 text-right">
-                          <button
-                            onClick={() => handleDeletePatient(p._id)}
-                            className="text-slate-400 hover:text-red-600 transition-colors"
-                            title="Remove patient"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {isAdmin && (
+                            <button
+                              onClick={() => handleDeletePatient(p._id)}
+                              className="text-rose-600 hover:text-rose-700 transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))
@@ -273,7 +317,11 @@ export default function DoctorDetailPage() {
         </>
       )}
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Add Patient">
+      <Modal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title="Add Patient"
+      >
         <form onSubmit={handleAddPatient} className="space-y-3">
           {error && (
             <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
