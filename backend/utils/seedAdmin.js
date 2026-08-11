@@ -113,7 +113,7 @@ const doctors = [
   },
 ];
 
-const patients = [
+const basePatients = [
   { name: "Rahim Uddin", age: 42, gender: "male", phone: "01811000001", condition: "High blood pressure" },
   { name: "Fatema Begum", age: 35, gender: "female", phone: "01811000002", condition: "Migraine" },
   { name: "Sakib Ahmed", age: 28, gender: "male", phone: "01811000003", condition: "Skin allergy" },
@@ -145,6 +145,69 @@ const patients = [
   { name: "Emon Chowdhury", age: 33, gender: "male", phone: "01811000029", condition: "Kidney infection" },
   { name: "Nusaiba Tabassum", age: 20, gender: "female", phone: "01811000030", condition: "Tooth decay" },
 ];
+
+// ---------- Random patient generator ----------
+// Builds additional patients on top of basePatients so re-running the seed
+// gives you a fresh, differently-shuffled batch each time (good for
+// pagination/testing since the dataset isn't identical run to run).
+
+const maleFirstNames = [
+  "Tanvir", "Rakibul", "Shuvo", "Anisur", "Mostafa", "Jahid", "Nayeem",
+  "Rubel", "Sohel", "Asif", "Foysal", "Mizanur", "Rezaul", "Iqbal",
+  "Shafiqul", "Golam", "Habibur", "Wasim", "Riyad", "Manik",
+];
+const femaleFirstNames = [
+  "Nasrin", "Shirin", "Kamrun", "Lubna", "Rowshan", "Halima", "Sultana",
+  "Parvin", "Nasima", "Rehana", "Momtaz", "Shahida", "Farida", "Anowara",
+  "Rokeya", "Salma", "Marium", "Kohinoor", "Jesmin", "Afroza",
+];
+const lastNames = [
+  "Islam", "Rahman", "Hossain", "Ahmed", "Khan", "Chowdhury", "Akter",
+  "Uddin", "Miah", "Sarkar", "Talukder", "Molla", "Bhuiyan", "Sheikh",
+  "Mahmud", "Kabir", "Alam", "Haque", "Karim", "Siddique",
+];
+const conditionsPool = [
+  "Common cold", "Typhoid", "Food poisoning", "Jaundice", "Chikungunya",
+  "Dengue fever", "Bronchitis", "Gout", "Insomnia", "Vertigo",
+  "Peptic ulcer", "Hepatitis B", "Malnutrition", "Kidney stone",
+  "Hearing loss", "Varicose veins", "Chronic fatigue", "Eczema",
+  "Sciatica", "Tonsillitis", "Sinus infection", "Anxiety disorder",
+];
+
+function randomFrom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function randomPhone(usedPhones) {
+  let phone;
+  do {
+    const digits = Math.floor(10000000 + Math.random() * 90000000);
+    phone = "018" + digits;
+  } while (usedPhones.has(phone));
+  usedPhones.add(phone);
+  return phone;
+}
+
+function generateRandomPatients(count, usedPhones) {
+  const generated = [];
+  for (let i = 0; i < count; i++) {
+    const gender = Math.random() < 0.5 ? "male" : "female";
+    const firstName = gender === "male" ? randomFrom(maleFirstNames) : randomFrom(femaleFirstNames);
+    const name = `${firstName} ${randomFrom(lastNames)}`;
+
+    generated.push({
+      name,
+      age: Math.floor(Math.random() * (75 - 15 + 1)) + 15, // 15–75
+      gender,
+      phone: randomPhone(usedPhones),
+      condition: randomFrom(conditionsPool),
+    });
+  }
+  return generated;
+}
+
+const usedPhones = new Set(basePatients.map((p) => p.phone));
+const patients = [...basePatients, ...generateRandomPatients(20, usedPhones)];
 
 async function run() {
   try {
@@ -181,18 +244,14 @@ async function run() {
     const createdDoctors = await Doctor.insertMany(doctors);
     console.log(createdDoctors.length + " doctors created");
 
-    const patientsWithDoctors = [];
-
-    for (let i = 0; i < patients.length; i++) {
-      patientsWithDoctors.push({
-        name: patients[i].name,
-        age: patients[i].age,
-        gender: patients[i].gender,
-        phone: patients[i].phone,
-        condition: patients[i].condition,
-        doctor: createdDoctors[i % createdDoctors.length]._id,
-      });
-    }
+    const patientsWithDoctors = patients.map((p, i) => ({
+      name: p.name,
+      age: p.age,
+      gender: p.gender,
+      phone: p.phone,
+      condition: p.condition,
+      doctor: createdDoctors[i % createdDoctors.length]._id,
+    }));
 
     const createdPatients = await Patient.insertMany(patientsWithDoctors);
     console.log(createdPatients.length + " patients created");

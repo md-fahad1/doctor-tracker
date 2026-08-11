@@ -7,7 +7,6 @@ import {
   Trash2,
   X,
   CalendarDays,
-  Users,
   SearchX,
 } from "lucide-react";
 import ProtectedLayout from "@/components/ProtectedLayout";
@@ -21,6 +20,15 @@ const AVATAR_COLORS = {
   other: "bg-slate-100 text-slate-600 ring-1 ring-slate-200",
 };
 
+const CONDITION_COLORS = [
+  "bg-teal-50 text-teal-700 ring-teal-100",
+  "bg-sky-50 text-sky-700 ring-sky-100",
+  "bg-violet-50 text-violet-700 ring-violet-100",
+  "bg-amber-50 text-amber-700 ring-amber-100",
+  "bg-emerald-50 text-emerald-700 ring-emerald-100",
+  "bg-pink-50 text-pink-700 ring-pink-100",
+];
+
 function initialsOf(name = "") {
   return name
     .trim()
@@ -30,10 +38,17 @@ function initialsOf(name = "") {
     .join("");
 }
 
+function hashColor(str = "", palette) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  return palette[Math.abs(hash) % palette.length];
+}
+
 export default function PatientsPage() {
   const [patients, setPatients] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalPatients, setTotalPatients] = useState(0);
   const [search, setSearch] = useState("");
   const [condition, setCondition] = useState("");
   const [from, setFrom] = useState("");
@@ -60,9 +75,10 @@ export default function PatientsPage() {
       const { data } = await api.get("/patients", {
         params: { search: effectiveSearch, condition, from, to, page, limit: 10 },
       });
-      if (currentRequest !== requestId.current) return; 
+      if (currentRequest !== requestId.current) return;
       setPatients(data.patients);
       setTotalPages(data.totalPages);
+      setTotalPatients(data.totalPatients ?? data.patients.length);
     } finally {
       if (currentRequest === requestId.current) setLoading(false);
     }
@@ -114,7 +130,9 @@ export default function PatientsPage() {
             Patients
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            All patients across every doctor.
+            {loading
+              ? "Loading..."
+              : `${totalPatients} patient${totalPatients === 1 ? "" : "s"} across every doctor`}
           </p>
         </div>
       </div>
@@ -265,10 +283,24 @@ export default function PatientsPage() {
                     </div>
                   </td>
                   <td className="px-5 py-3 text-slate-600">
-                    {p.doctor?.name || <span className="text-slate-400">—</span>}
+                    {p.doctor?.name ? (
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-[10px] font-semibold text-slate-500">
+                          {initialsOf(p.doctor.name)}
+                        </span>
+                        <span>{p.doctor.name}</span>
+                      </div>
+                    ) : (
+                      <span className="text-slate-400">—</span>
+                    )}
                   </td>
                   <td className="px-5 py-3">
-                    <span className="inline-flex items-center rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700 ring-1 ring-teal-100">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${hashColor(
+                        p.condition,
+                        CONDITION_COLORS
+                      )}`}
+                    >
                       {p.condition}
                     </span>
                   </td>
@@ -279,7 +311,7 @@ export default function PatientsPage() {
                     {p.phone}
                   </td>
                   <td className="px-5 py-3">
-                    <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    <div className="flex items-center justify-end gap-1 transition-opacity opacity-100">
                       <button
                         onClick={() => setEditing({ ...p })}
                         aria-label="Edit patient"
