@@ -87,7 +87,7 @@ export default function DoctorDetailPage() {
             </div>
             <button
               onClick={() => setModalOpen(true)}
-              className="flex items-center gap-2 bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium rounded-lg px-4 py-2"
+              className="flex items-center gap-2 bg-teal-700 hover:bg-teal-800 text-white text-sm font-medium rounded-lg px-4 py-2"
             >
               <Plus className="w-4 h-4" /> Add Patient
             </button>
@@ -145,7 +145,7 @@ export default function DoctorDetailPage() {
             placeholder="Name"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
+            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-600"
           />
           <input
             required
@@ -154,12 +154,12 @@ export default function DoctorDetailPage() {
             placeholder="Age"
             value={form.age}
             onChange={(e) => setForm({ ...form, age: e.target.value })}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
+            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-600"
           />
           <select
             value={form.gender}
             onChange={(e) => setForm({ ...form, gender: e.target.value })}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
+            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-600"
           >
             <option value="male">Male</option>
             <option value="female">Female</option>
@@ -170,19 +170,19 @@ export default function DoctorDetailPage() {
             placeholder="Phone"
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
+            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-600"
           />
           <input
             required
             placeholder="Condition"
             value={form.condition}
             onChange={(e) => setForm({ ...form, condition: e.target.value })}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
+            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-600"
           />
           <button
             type="submit"
             disabled={saving}
-            className="w-full bg-sky-600 hover:bg-sky-700 disabled:opacity-60 text-white text-sm font-medium rounded-lg py-2.5"
+            className="w-full bg-teal-700 hover:bg-teal-800 disabled:opacity-60 text-white text-sm font-medium rounded-lg py-2.5"
           >
             {saving ? "Saving..." : "Add Patient"}
           </button>

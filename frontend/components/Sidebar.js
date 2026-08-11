@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Stethoscope, Users, LogOut } from "lucide-react";
+import { LayoutDashboard, Stethoscope, Users, LogOut,Settings } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 const links = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/doctors", label: "Doctors", icon: Stethoscope },
   { href: "/patients", label: "Patients", icon: Users },
+  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/profile", label: "Profile", icon: Users },
 ];
 
 export default function Sidebar() {
