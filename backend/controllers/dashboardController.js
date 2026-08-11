@@ -1,17 +1,20 @@
 const Doctor = require("../models/Doctor");
 const Patient = require("../models/Patient");
+const User = require("../models/User");
 
 const getDashboardStats = async (req, res, next) => {
   try {
     const [
       totalDoctors,
       totalPatients,
+      totalUsers,
       patientsPerDoctor,
       monthlyPatientTrend,
       conditionBreakdown,
     ] = await Promise.all([
       Doctor.countDocuments(),
       Patient.countDocuments(),
+      User.countDocuments(),
 
       Patient.aggregate([
         { $group: { _id: "$doctor", patientCount: { $sum: 1 } } },
@@ -40,13 +43,18 @@ const getDashboardStats = async (req, res, next) => {
         {
           $match: {
             createdAt: {
-              $gte: new Date(new Date().setMonth(new Date().getMonth() - 6)),
+              $gte: new Date(
+                new Date().setMonth(new Date().getMonth() - 6)
+              ),
             },
           },
         },
         {
           $group: {
-            _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+            _id: {
+              year: { $year: "$createdAt" },
+              month: { $month: "$createdAt" },
+            },
             count: { $sum: 1 },
           },
         },
@@ -62,16 +70,28 @@ const getDashboardStats = async (req, res, next) => {
       ]),
 
       Patient.aggregate([
-        { $group: { _id: "$condition", count: { $sum: 1 } } },
+        {
+          $group: {
+            _id: "$condition",
+            count: { $sum: 1 },
+          },
+        },
         { $sort: { count: -1 } },
         { $limit: 8 },
-        { $project: { _id: 0, condition: "$_id", count: 1 } },
+        {
+          $project: {
+            _id: 0,
+            condition: "$_id",
+            count: 1,
+          },
+        },
       ]),
     ]);
 
     res.json({
       totalDoctors,
       totalPatients,
+      totalUsers,
       patientsPerDoctor,
       monthlyPatientTrend,
       conditionBreakdown,
